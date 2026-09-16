@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../common/Button';
+import { useAuth } from '../../context/AuthContext';
 
 export const Header = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   return (
     <header className="glass-panel" style={{ 
@@ -38,8 +40,19 @@ export const Header = () => {
         Gang<span style={{ color: 'var(--color-text-dark)' }}>Dash</span>
       </div>
       <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-        <Button variant="ghost" style={{ fontWeight: '600' }} onClick={() => navigate('/login')}>Log In</Button>
-        <Button variant="primary" style={{ padding: '12px 24px' }} onClick={() => navigate('/signup')}>Sign Up</Button>
+        {user ? (
+          <>
+            <div style={{ fontWeight: '600', color: 'var(--color-text-dark)' }}>
+              Welcome, {user.name}
+            </div>
+            <Button variant="ghost" style={{ fontWeight: '600', color: 'red' }} onClick={logout}>Log Out</Button>
+          </>
+        ) : (
+          <>
+            <Button variant="ghost" style={{ fontWeight: '600' }} onClick={() => navigate('/login')}>Log In</Button>
+            <Button variant="primary" style={{ padding: '12px 24px' }} onClick={() => navigate('/signup')}>Sign Up</Button>
+          </>
+        )}
       </div>
     </header>
   );
