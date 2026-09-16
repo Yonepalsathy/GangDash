@@ -2,12 +2,30 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/common/Button';
 import { Mail, Lock, User, ArrowLeft } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export const Signup = () => {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+    try {
+      await register(name, email, password);
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to register');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="hero-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
@@ -26,7 +44,13 @@ export const Signup = () => {
           <p style={{ color: 'var(--color-text-light)' }}>Join GangDash and start your journey.</p>
         </div>
 
-        <form onSubmit={(e) => { e.preventDefault(); console.log('Signup', { name, email, password }); }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {error && (
+          <div style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', color: 'red', padding: '12px', borderRadius: '8px', marginBottom: '20px', textAlign: 'center', fontSize: '14px' }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: 'var(--color-text-dark)' }}>Full Name</label>
             <div style={{ position: 'relative' }}>
@@ -105,8 +129,8 @@ export const Signup = () => {
             </div>
           </div>
 
-          <Button type="submit" variant="primary" style={{ width: '100%', padding: '16px', marginTop: '8px', fontSize: '16px' }}>
-            Create Account
+          <Button type="submit" variant="primary" style={{ width: '100%', padding: '16px', marginTop: '8px', fontSize: '16px' }} disabled={isLoading}>
+            {isLoading ? 'Creating Account...' : 'Create Account'}
           </Button>
         </form>
 
